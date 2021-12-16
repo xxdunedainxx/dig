@@ -17,7 +17,8 @@ class Configuration:
       "ENABLED" : True,
       "USER_SESSION_TIMEOUT_MINUTES" : 180
     },
-    "REFRESH_ENERGY_INTERVAL" : 1
+    "REFRESH_ENERGY_INTERVAL" : 1,
+    "DEBUG" : True
   }
 
   def __init__(self):
@@ -45,6 +46,7 @@ class Configuration:
 
     self.DISCORD: dict = self.__get_value("DISCORD")
     self.REFRESH_ENERGY_INTERVAL: int = self.__get_value("REFRESH_ENERGY_INTERVAL")
+    self.DEBUG: bool = self.__get_value("DEBUG")
 
 
   def __get_value(self, key: str):

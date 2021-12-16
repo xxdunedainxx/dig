@@ -30,10 +30,10 @@ def authenticate_discord_user(discord_msg_handler):
       if dSession.is_timed_out() == False:
         return await discord_msg_handler(*args, **kwargs)
       else:
-        await message.channel.send("Your session has timed out, please log back in..")
+        await message.channel.send(":poop: Your session has timed out, please log back in..")
         return
     else:
-      await message.channel.send("You are not logged in... :)")
+      await message.channel.send(":no_entry: You are not logged in... :)")
       return
 
   return authenticate_discord_user_wrapper
@@ -115,9 +115,9 @@ class DiscordIntegration:
   async def cancel_user_queue_request(message: discord.Message) -> None:
     if DiscordIntegration.user_has_message_queue_request(message):
       DiscordIntegration.MESSAGE_REQUEST_QUEUE.pop(message.author.id)
-      await message.channel.send('Your request has been canceled.')
+      await message.channel.send(':white_check_mark: Your request has been canceled.')
     else:
-      await message.channel.send('You dont have any open requests?')
+      await message.channel.send('?You dont have any open requests?')
 
   @staticmethod
   def start_discord_in_thread():
@@ -130,7 +130,7 @@ class DiscordIntegration:
     output = ""
 
     for parsed_cmd in PARSED_CMDS_HELP.keys():
-      output+=f"\nCOMMAND={parsed_cmd}\nEXAMPLE={PARSED_CMDS_HELP[parsed_cmd]}"
+      output+=f"\n:keyboard: **Command**: {parsed_cmd}\n:information_source: **Example**: {PARSED_CMDS_HELP[parsed_cmd]}"
     return output
 
   @staticmethod
@@ -138,7 +138,7 @@ class DiscordIntegration:
     output = ""
 
     for cmd_help in SINGLE_COMMANDS_INFO.keys():
-      output+=f"\nCommand: {cmd_help}\nDescription:{SINGLE_COMMANDS_INFO[cmd_help]}\n"
+      output+=f"\n:keyboard: **Command:** {cmd_help}\n:information_source: **Description:** {SINGLE_COMMANDS_INFO[cmd_help]}\n"
     return output
 
   @staticmethod
@@ -182,9 +182,10 @@ Email: {userInfo.email}
   @staticmethod
   @discord_message_logger
   async def dig_help(message):
-    await message.channel.send(f"""
-A list of all available single DIG commands: {DiscordIntegration.single_commands_help_output()}
-\nA list of all available chained commands: {DiscordIntegration.parsed_commands_help_output()}""")
+    digHelpDebugString = ":exclamation: THIS IS A DEBUG BOT :exclamation:" if CONF_INSTANCE.DEBUG == True else ''
+    await message.channel.send(f"""{digHelpDebugString}
+:printer:  A list of all available single DIG commands:\n {DiscordIntegration.single_commands_help_output()}
+\n:printer:  A list of all available chained commands:\n {DiscordIntegration.parsed_commands_help_output()}""")
 
   @staticmethod
   @discord_message_logger
@@ -205,7 +206,7 @@ A list of all available single DIG commands: {DiscordIntegration.single_commands
   @discord_message_logger
   @authenticate_discord_user
   async def dig_inventory(message):
-    inv=InventoryManager.get_inventory(DiscordIntegration.logged_in_users[message.author.id].user.get_app_user()).print_inventory()
+    inv=InventoryManager.get_inventory(DiscordIntegration.logged_in_users[message.author.id].user.get_app_user()).print_inventory(inventoryHeaderAvatar=":card_box:", itemHeaderAvatar=":rock:", runesHeaderAvatar=":crystal_ball:")
     await message.channel.send(f"Current inventory: {inv}")
 
   @staticmethod
@@ -247,10 +248,10 @@ A list of all available single DIG commands: {DiscordIntegration.single_commands
             discordUser=message.author
           )
         )
-        await message.channel.send("You are authenticated!")
+        await message.channel.send(":white_check_mark: You are authenticated!")
         DiscordIntegration.MESSAGE_REQUEST_QUEUE.pop(message.author.id)
       else:
-        await message.channel.send("failed to authenticate :(")
+        await message.channel.send(":no_entry: failed to authenticate :(")
 
   async def process_account_registration(self, message):
     if "," in message.content:
@@ -306,45 +307,47 @@ A list of all available single DIG commands: {DiscordIntegration.single_commands
 
           await self.check_queued_requests(message)
 
-          if message.content in COMMANDS.keys():
+          if message.content.lower() in COMMANDS.keys():
+              message.content = message.content.lower()
               await COMMANDS[message.content](message)
           else:
             for parse_cmd in PARSED_COMMANDS.keys():
+              parse_cmd=parse_cmd.lower()
               if parse_cmd in message.content:
                 await PARSED_COMMANDS[parse_cmd](message)
                 break
         except Exception as e:
           LogFactory.MAIN_LOG.error(f"Failed to process message with error {errorStackTrace(e)} for message {message.content}")
 
+def debug_string_injection():
+  return 'debug' if CONF_INSTANCE.DEBUG == True else ''
 
 COMMANDS = {
-  "digLoginRequest": DiscordIntegration.login_request,
-  "digLogin": DiscordIntegration.login_request,
-  "digHelp" : DiscordIntegration.dig_help,
-  "digLoginCheck" : DiscordIntegration.dig_check_login,
-  "digRock"  : DiscordIntegration.dig_rock,
-  "digRegisterAccount" : DiscordIntegration.dig_register_user_request,
-  "digInventory" : DiscordIntegration.dig_inventory,
-  "digProfile" : DiscordIntegration.print_user_info,
-  "digCancel" : DiscordIntegration.cancel_user_queue_request
+  f"{debug_string_injection()}diglogin": DiscordIntegration.login_request,
+  f"{debug_string_injection()}dighelp" : DiscordIntegration.dig_help,
+  f"{debug_string_injection()}diglogincheck" : DiscordIntegration.dig_check_login,
+  f"{debug_string_injection()}digrock"  : DiscordIntegration.dig_rock,
+  f"{debug_string_injection()}digregisteraccount" : DiscordIntegration.dig_register_user_request,
+  f"{debug_string_injection()}diginventory" : DiscordIntegration.dig_inventory,
+  f"{debug_string_injection()}digprofile" : DiscordIntegration.print_user_info,
+  f"{debug_string_injection()}digcancel" : DiscordIntegration.cancel_user_queue_request
 }
 
 SINGLE_COMMANDS_INFO = {
-  "digLoginRequest": "Login to the dig server",
-  "digLogin": "Login to the dig server",
-  "digHelp": "Get help, lol",
-  "digLoginCheck": "Check if you are logged in",
-  "digRock": "Dig something",
-  "digRegisterAccount": "Create a new dig account",
-  "digInventory": "Print your current inventory",
-  "digProfile" : "Print your profile info",
-  "digCancel" : "Cancel an outstanding request"
+  f"{debug_string_injection()}diglogin": "Login to the dig server",
+  f"{debug_string_injection()}dighelp": "Get help, lol",
+  f"{debug_string_injection()}diglogincheck": "Check if you are logged in",
+  f"{debug_string_injection()}digrock": "Dig something",
+  f"{debug_string_injection()}digregisteraccount": "Create a new dig account",
+  f"{debug_string_injection()}diginventory": "Print your current inventory",
+  f"{debug_string_injection()}digprofile" : "Print your profile info",
+  f"{debug_string_injection()}digcancel" : "Cancel an outstanding request"
 }
 
 PARSED_COMMANDS = {
-  "digCraft:" : DiscordIntegration.craft
+  f"{debug_string_injection()}digcraft:" : DiscordIntegration.craft
 }
 
 PARSED_CMDS_HELP = {
-  "digCraft:" : "digCraft:rubyRune"
+  f"{debug_string_injection()}digcraft:" : "digcraft:rubyRune"
 }

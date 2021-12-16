@@ -18,8 +18,8 @@ class CraftResponse:
 
 class Crafter:
   CRAFT_COMMANDS = {
-    "rubyRune" : RubyRune.craft,
-    "energyRune" : EnergyRune.craft
+    "rubyrune" : RubyRune.craft,
+    "energyrune" : EnergyRune.craft
   }
 
   @staticmethod
