@@ -1,0 +1,1 @@
+# TODO account for energy runes to up the energy refreshed

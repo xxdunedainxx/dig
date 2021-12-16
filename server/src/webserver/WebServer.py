@@ -1,0 +1,30 @@
+from src.core.util.LogFactory import LogFactory
+from src.core.Configuration import CONF_INSTANCE
+
+from flask import Flask, render_template, jsonify
+from flask_cors import CORS
+
+class WebServerInit:
+
+  flask: Flask = Flask(__name__)
+
+  def __init__(self):
+    pass
+
+  @staticmethod
+  def init_flask():
+    LogFactory.MAIN_LOG.info('Initializing flask server object')
+    CORS (
+      WebServerInit.flask,
+      resources={
+        r"/*" : {
+          "origins": CONF_INSTANCE.FLASK_CORS_ORIGIN
+        }
+      }
+    )
+
+  @staticmethod
+  def configure_cors():
+    pass
+
+

@@ -1,0 +1,23 @@
+version: "3.2"
+services:
+  dig_mysql_server:
+    image: dig_mysql_server
+    container_name: dig_mysql_server
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - dig_network
+  dig_server:
+    image: dig_server
+    container_name: dig_server
+    environment:
+      MYSQL_HOST: "dig_mysql_server"
+    volumes:
+      - ./prod.conf.json:/conf.json
+      - ./logs:/logs
+    networks:
+      - dig_network
+volumes:
+  dig_mysql_volume:
+networks:
+  dig_network:
