@@ -50,7 +50,7 @@ class Inventory(Model):
     i=1
 
     for item in self.item_buckets.keys():
-      pItems+=f"\n[{len(self.item_buckets[item])}] {item}"
+      pItems+=f"[{len(self.item_buckets[item])}] {item}\n"
       i+=1
     return pItems
 
@@ -72,12 +72,11 @@ class Inventory(Model):
     }
     return rObj
 
-  def print_inventory(self):
+  def print_inventory(self, itemHeaderAvatar: str = '', runesHeaderAvatar: str = '', inventoryHeaderAvatar: str = ''):
 
-    return f""" 
-      {self.owner.username}'s Inventory: \n
-      Items: \n
-      {self.__get_items_printable()}
-      Runes: \n
-      {self.__get_runes_printable()}
-    """
+    return f"""{self.owner.username}'s Inventory {inventoryHeaderAvatar}: \n
+{itemHeaderAvatar}Items:
+{self.__get_items_printable()}
+{runesHeaderAvatar}Runes:
+{self.__get_runes_printable()}
+"""
